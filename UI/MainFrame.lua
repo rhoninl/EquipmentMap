@@ -32,6 +32,9 @@ function MainFrame:Create()
     frame:SetFrameStrata("HIGH")
     frame:SetClampedToScreen(true)
 
+    -- ESC to close
+    tinsert(UISpecialFrames, "EquipMapFrame")
+
     frame:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
         edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
@@ -115,16 +118,16 @@ function MainFrame:CreateFilterBar(parent)
     -- Armor type dropdown
     local armorDropdown = CreateFrame("DropdownButton", nil, bar, "WowStyle1DropdownTemplate")
     armorDropdown:SetPoint("LEFT", slotDropdown, "RIGHT", 10, 0)
-    armorDropdown:SetDefaultText("All")
+    armorDropdown:SetDefaultText(L["AllArmor"])
 
     local selectedArmor = nil
     armorDropdown:SetupMenu(function(dropdown, rootDescription)
         local armorOptions = {
-            { key = nil, name = "All" },
-            { key = "Cloth", name = "Cloth" },
-            { key = "Leather", name = "Leather" },
-            { key = "Mail", name = "Mail" },
-            { key = "Plate", name = "Plate" },
+            { key = nil, name = L["AllArmor"] },
+            { key = "Cloth", name = L["Cloth"] },
+            { key = "Leather", name = L["Leather"] },
+            { key = "Mail", name = L["Mail"] },
+            { key = "Plate", name = L["Plate"] },
         }
         for _, opt in ipairs(armorOptions) do
             rootDescription:CreateRadio(
@@ -354,12 +357,25 @@ function MainFrame:SetupRowWidgets(row)
     row:SetScript("OnMouseUp", function(self, button)
         if IsModifiedClick("CHATLINK") and self.itemLink then
             ChatEdit_InsertLink(self.itemLink)
+        elseif button == "LeftButton" and self.instanceID and self.encounterID then
+            -- Open Adventure Guide to this item's dungeon/encounter
+            if not EncounterJournal or not EncounterJournal:IsShown() then
+                ToggleEncounterJournal()
+            end
+            EJ_SelectInstance(self.instanceID)
+            EJ_SelectEncounter(self.encounterID)
+            -- Switch to loot tab (tab index 2)
+            if EncounterJournal and EncounterJournal.encounter and EncounterJournal.encounter.info then
+                EncounterJournal.encounter.info.lootTab:Click()
+            end
         end
     end)
 end
 
 function MainFrame:SetRowData(row, item)
     row.itemLink = item.itemLink
+    row.instanceID = item.instanceID
+    row.encounterID = item.encounterID
 
     if item.icon then
         row.icon:SetTexture(item.icon)
