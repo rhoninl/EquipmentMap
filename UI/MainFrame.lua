@@ -58,6 +58,15 @@ function MainFrame:Create()
         EquipMap:Print(EquipMap.L["DataReloaded"])
     end)
 
+    -- Settings button
+    local settingsBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    settingsBtn:SetSize(22, 22)
+    settingsBtn:SetPoint("RIGHT", reloadBtn, "LEFT", -4, 0)
+    settingsBtn:SetNormalTexture("Interface\\Buttons\\UI-OptionsButton")
+    settingsBtn:SetScript("OnClick", function()
+        MainFrame:ToggleSettings()
+    end)
+
     self:CreateFilterBar(frame)
     self:CreateHeaders(frame)
     self:CreateScrollBox(frame)
@@ -455,4 +464,70 @@ end
 
 function MainFrame:IsShown()
     return frame and frame:IsShown()
+end
+
+---------------------------------------------------------------------------
+-- Settings panel
+---------------------------------------------------------------------------
+
+local settingsFrame = nil
+
+function MainFrame:ToggleSettings()
+    if settingsFrame and settingsFrame:IsShown() then
+        settingsFrame:Hide()
+        return
+    end
+    if not settingsFrame then
+        self:CreateSettings()
+    end
+    settingsFrame:Show()
+end
+
+function MainFrame:CreateSettings()
+    settingsFrame = CreateFrame("Frame", nil, frame, "BackdropTemplate")
+    settingsFrame:SetSize(220, 100)
+    settingsFrame:SetPoint("TOPRIGHT", frame, "TOPLEFT", -4, 0)
+    settingsFrame:SetFrameStrata("HIGH")
+
+    settingsFrame:SetBackdrop({
+        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+        edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+        tile = true, tileSize = 32, edgeSize = 24,
+        insets = { left = 6, right = 6, top = 6, bottom = 6 },
+    })
+
+    local title = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOP", 0, -12)
+    title:SetText("Settings")
+
+    -- Language dropdown
+    local langLabel = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    langLabel:SetPoint("TOPLEFT", 14, -34)
+    langLabel:SetText("Language:")
+
+    local langDropdown = CreateFrame("DropdownButton", nil, settingsFrame, "WowStyle1DropdownTemplate")
+    langDropdown:SetPoint("LEFT", langLabel, "RIGHT", 8, 0)
+
+    local currentLang = (EquipMapDB and EquipMapDB.locale) or GetLocale()
+
+    langDropdown:SetupMenu(function(dropdown, rootDescription)
+        local langOptions = {
+            { code = "enUS", name = "English" },
+            { code = "zhCN", name = "\231\174\128\228\189\147\228\184\173\230\150\135" },
+            { code = "zhTW", name = "\231\185\129\233\171\148\228\184\173\230\150\135" },
+        }
+        for _, opt in ipairs(langOptions) do
+            rootDescription:CreateRadio(
+                opt.name,
+                function() return currentLang == opt.code end,
+                function()
+                    currentLang = opt.code
+                    EquipMapDB = EquipMapDB or {}
+                    EquipMapDB.locale = opt.code
+                    EquipMap:ApplyLocale(opt.code)
+                    EquipMap:Print(string.format(EquipMap.L["LangSet"], opt.code))
+                end
+            )
+        end
+    end)
 end

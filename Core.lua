@@ -191,39 +191,10 @@ SlashCmdList["EQUIPMAP"] = function(msg)
         return
     end
 
-    -- /equipmap lang [code]
-    if msg:sub(1, 4) == "lang" then
-        local code = strtrim(msg:sub(5))
-        if code == "" then
-            local current = (EquipMapDB and EquipMapDB.locale) or GetLocale()
-            ns:Print(string.format(ns.L["LangCurrent"], current))
-            return
-        end
-        -- Validate
-        local valid = false
-        for _, loc in ipairs(ns.supportedLocales) do
-            if code == loc:lower() then
-                code = loc
-                valid = true
-                break
-            end
-        end
-        if not valid then
-            ns:Print("Supported: enUS, zhCN, zhTW")
-            return
-        end
-        EquipMapDB = EquipMapDB or {}
-        EquipMapDB.locale = code
-        ns:ApplyLocale(code)
-        ns:Print(string.format(ns.L["LangSet"], code))
-        return
-    end
-
     if msg == "help" then
         ns:Print(ns.L["Commands"])
         print(ns.L["CmdToggle"])
         print(ns.L["CmdReload"])
-        print(ns.L["CmdLang"])
         print(ns.L["CmdTest"])
         print(ns.L["CmdHelp"])
         return
