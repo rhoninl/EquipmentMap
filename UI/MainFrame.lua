@@ -48,6 +48,16 @@ function MainFrame:Create()
     local closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", -6, -6)
 
+    -- Reload button
+    local reloadBtn = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    reloadBtn:SetSize(70, 22)
+    reloadBtn:SetPoint("TOPRIGHT", closeBtn, "TOPLEFT", -4, -4)
+    reloadBtn:SetText("Reload")
+    reloadBtn:SetScript("OnClick", function()
+        EquipMap.DoReload()
+        EquipMap:Print(EquipMap.L["DataReloaded"])
+    end)
+
     self:CreateFilterBar(frame)
     self:CreateHeaders(frame)
     self:CreateScrollBox(frame)

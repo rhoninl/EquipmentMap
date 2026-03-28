@@ -16,6 +16,7 @@ ns.db = {
 local eventFrame = CreateFrame("Frame")
 
 local EVENTS = {
+    "ADDON_LOADED",
     "PLAYER_ENTERING_WORLD",
     "CHALLENGE_MODE_MAPS_UPDATE",
     "ITEM_DATA_LOAD_RESULT",
@@ -44,8 +45,33 @@ local function ScheduleRefresh()
     end)
 end
 
+local function DoReload()
+    isLoadingData = true
+    ns.db.dungeons = {}
+    ns.db.items = {}
+    ns.Data:LoadDungeonData()
+    ns.Data:UpdateComparisons()
+    ns.MainFrame:InitDungeonDropdown()
+    ns.MainFrame:Refresh()
+    isLoadingData = false
+end
+
+-- Expose reload for the UI button
+ns.DoReload = DoReload
+
 eventFrame:SetScript("OnEvent", function(self, event, ...)
-    if event == "PLAYER_ENTERING_WORLD" then
+    if event == "ADDON_LOADED" then
+        local addonName = ...
+        if addonName == ADDON_NAME then
+            -- Initialize SavedVariables
+            EquipMapDB = EquipMapDB or {}
+            if EquipMapDB.locale then
+                ns:ApplyLocale(EquipMapDB.locale)
+            end
+            eventFrame:UnregisterEvent("ADDON_LOADED")
+        end
+
+    elseif event == "PLAYER_ENTERING_WORLD" then
         C_MythicPlus.RequestMapInfo()
 
     elseif event == "CHALLENGE_MODE_MAPS_UPDATE" then
@@ -82,6 +108,67 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
     end
 end)
 
+-- Minimap button via LibDataBroker pattern (no library needed)
+local minimapButton = CreateFrame("Button", "EquipMapMinimapButton", Minimap)
+minimapButton:SetSize(32, 32)
+minimapButton:SetFrameStrata("MEDIUM")
+minimapButton:SetFrameLevel(8)
+minimapButton:SetPoint("TOPLEFT", Minimap, "TOPLEFT", 2, -2)
+minimapButton:SetMovable(true)
+minimapButton:SetClampedToScreen(true)
+
+local minimapIcon = minimapButton:CreateTexture(nil, "ARTWORK")
+minimapIcon:SetSize(20, 20)
+minimapIcon:SetPoint("CENTER")
+minimapIcon:SetTexture("Interface\\Icons\\INV_Misc_Map02")
+
+local minimapBorder = minimapButton:CreateTexture(nil, "OVERLAY")
+minimapBorder:SetSize(54, 54)
+minimapBorder:SetPoint("CENTER")
+minimapBorder:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
+
+local minimapHighlight = minimapButton:CreateTexture(nil, "HIGHLIGHT")
+minimapHighlight:SetSize(24, 24)
+minimapHighlight:SetPoint("CENTER")
+minimapHighlight:SetTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
+
+minimapButton:SetScript("OnClick", function(self, button)
+    ns.MainFrame:Toggle()
+end)
+
+minimapButton:SetScript("OnEnter", function(self)
+    GameTooltip:SetOwner(self, "ANCHOR_LEFT")
+    GameTooltip:AddLine("EquipMap")
+    GameTooltip:AddLine(ns.L["CmdToggle"], 1, 1, 1, true)
+    GameTooltip:Show()
+end)
+
+minimapButton:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+end)
+
+-- Draggable around minimap edge
+local isDragging = false
+minimapButton:RegisterForDrag("LeftButton")
+minimapButton:SetScript("OnDragStart", function(self)
+    isDragging = true
+    self:SetScript("OnUpdate", function(self)
+        local mx, my = Minimap:GetCenter()
+        local cx, cy = GetCursorPosition()
+        local scale = Minimap:GetEffectiveScale()
+        cx, cy = cx / scale, cy / scale
+        local angle = math.atan2(cy - my, cx - mx)
+        local radius = (Minimap:GetWidth() / 2) + 5
+        self:ClearAllPoints()
+        self:SetPoint("CENTER", Minimap, "CENTER", math.cos(angle) * radius, math.sin(angle) * radius)
+    end)
+end)
+
+minimapButton:SetScript("OnDragStop", function(self)
+    isDragging = false
+    self:SetScript("OnUpdate", nil)
+end)
+
 -- Slash command
 SLASH_EQUIPMAP1 = "/equipmap"
 SLASH_EQUIPMAP2 = "/em"
@@ -99,15 +186,36 @@ SlashCmdList["EQUIPMAP"] = function(msg)
     end
 
     if msg == "reload" then
-        isLoadingData = true
-        ns.db.dungeons = {}
-        ns.db.items = {}
-        ns.Data:LoadDungeonData()
-        ns.Data:UpdateComparisons()
-        ns.MainFrame:InitDungeonDropdown()
-        ns.MainFrame:Refresh()
-        isLoadingData = false
+        DoReload()
         ns:Print(ns.L["DataReloaded"])
+        return
+    end
+
+    -- /equipmap lang [code]
+    if msg:sub(1, 4) == "lang" then
+        local code = strtrim(msg:sub(5))
+        if code == "" then
+            local current = (EquipMapDB and EquipMapDB.locale) or GetLocale()
+            ns:Print(string.format(ns.L["LangCurrent"], current))
+            return
+        end
+        -- Validate
+        local valid = false
+        for _, loc in ipairs(ns.supportedLocales) do
+            if code == loc:lower() then
+                code = loc
+                valid = true
+                break
+            end
+        end
+        if not valid then
+            ns:Print("Supported: enUS, zhCN, zhTW")
+            return
+        end
+        EquipMapDB = EquipMapDB or {}
+        EquipMapDB.locale = code
+        ns:ApplyLocale(code)
+        ns:Print(string.format(ns.L["LangSet"], code))
         return
     end
 
@@ -115,6 +223,7 @@ SlashCmdList["EQUIPMAP"] = function(msg)
         ns:Print(ns.L["Commands"])
         print(ns.L["CmdToggle"])
         print(ns.L["CmdReload"])
+        print(ns.L["CmdLang"])
         print(ns.L["CmdTest"])
         print(ns.L["CmdHelp"])
         return

@@ -140,10 +140,15 @@ function Data:LoadInstanceLoot(instanceID, dungeonName)
                 dungeonName = dungeonName,
             })
 
-            if encounterID and dungeon.encounters[encounterID] then
-                table.insert(dungeon.encounters[encounterID].items, entry)
+            -- Skip items with no known equipment slot
+            if not entry.slotID then
+                -- skip
+            else
+                if encounterID and dungeon.encounters[encounterID] then
+                    table.insert(dungeon.encounters[encounterID].items, entry)
+                end
+                table.insert(EquipMap.db.items, entry)
             end
-            table.insert(EquipMap.db.items, entry)
 
             if not itemInfo.name or itemInfo.name == "" then
                 pendingItems[itemInfo.itemID] = entry
