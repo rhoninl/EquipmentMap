@@ -99,7 +99,6 @@ end
 function Filters:SetArmorType(armorType)
     self.current.armorType = armorType
 end
-end
 
 function Filters:SetSpecFilter(enabled)
     self.current.specFilter = enabled
