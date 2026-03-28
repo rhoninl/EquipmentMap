@@ -217,6 +217,12 @@ function Data:EnrichItemEntry(entry)
                 entry.vers = stats["ITEM_MOD_VERSATILITY"] or 0
             end
         end
+
+        -- Detect armor type from item class/subclass (locale-independent)
+        local _, _, _, _, _, classID, subclassID = GetItemInfoInstant(entry.itemID)
+        if classID == Enum.ItemClass.Armor then
+            entry.armorType = EquipMap.ARMOR_SUBCLASS_TO_TYPE[subclassID]
+        end
     else
         pendingItems[entry.itemID] = entry
     end

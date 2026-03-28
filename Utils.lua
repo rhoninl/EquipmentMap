@@ -45,6 +45,15 @@ EquipMap.ARMOR_TYPES = {
     Plate = 4,
 }
 
+-- Armor subclassID -> normalized type string (locale-independent)
+-- Enum.ItemArmorSubclass: 1=Cloth, 2=Leather, 3=Mail, 4=Plate
+EquipMap.ARMOR_SUBCLASS_TO_TYPE = {
+    [1] = "Cloth",
+    [2] = "Leather",
+    [3] = "Mail",
+    [4] = "Plate",
+}
+
 -- Slot ID -> display name (localized)
 local L = EquipMap.L
 EquipMap.SLOT_NAMES = {
