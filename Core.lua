@@ -120,7 +120,7 @@ minimapButton:SetClampedToScreen(true)
 local minimapIcon = minimapButton:CreateTexture(nil, "ARTWORK")
 minimapIcon:SetSize(20, 20)
 minimapIcon:SetPoint("CENTER")
-minimapIcon:SetTexture("Interface\\Icons\\INV_Misc_Map02")
+minimapIcon:SetTexture("Interface\\AddOns\\MythicLootMap\\logo")
 
 local minimapBorder = minimapButton:CreateTexture(nil, "OVERLAY")
 minimapBorder:SetSize(54, 54)
