@@ -1,10 +1,10 @@
--- EquipMap Test Runner
--- Run via: /equipmap test
+-- MythicLootMap Test Runner
+-- Run via: /mlm test
 
-local EquipMap = EquipMap
+local MythicLootMap = MythicLootMap
 
 local TestRunner = {}
-EquipMap.TestRunner = TestRunner
+MythicLootMap.TestRunner = TestRunner
 
 local results = {
     passed = 0,
@@ -58,9 +58,9 @@ function TestRunner:RunAll()
     self:Reset()
 
     local suites = {
-        EquipMap.TestData,
-        EquipMap.TestCompare,
-        EquipMap.TestFilters,
+        MythicLootMap.TestData,
+        MythicLootMap.TestCompare,
+        MythicLootMap.TestFilters,
     }
 
     for _, suite in ipairs(suites) do
@@ -77,7 +77,7 @@ function TestRunner:RunAll()
 end
 
 function TestRunner:PrintResults()
-    print("|cFF00FF00EquipMap Tests|r")
+    print("|cFF00FF00MythicLootMap Tests|r")
     print(string.format("  Passed: |cFF00FF00%d|r", results.passed))
     print(string.format("  Failed: |cFFFF0000%d|r", results.failed))
 

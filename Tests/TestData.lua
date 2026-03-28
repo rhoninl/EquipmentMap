@@ -1,9 +1,9 @@
--- EquipMap Data Loading Tests
+-- MythicLootMap Data Loading Tests
 
-local EquipMap = EquipMap
+local MythicLootMap = MythicLootMap
 
 local TestData = {}
-EquipMap.TestData = TestData
+MythicLootMap.TestData = TestData
 
 function TestData:Run(t)
     self:TestEquipLocToSlot(t)
@@ -15,7 +15,7 @@ function TestData:Run(t)
 end
 
 function TestData:TestEquipLocToSlot(t)
-    local map = EquipMap.EQUIPLOC_TO_SLOT
+    local map = MythicLootMap.EQUIPLOC_TO_SLOT
 
     t:AssertNotNil(map, "EQUIPLOC_TO_SLOT should exist")
     t:AssertEqual(1, map["INVTYPE_HEAD"], "Head slot")
@@ -38,7 +38,7 @@ function TestData:TestEquipLocToSlot(t)
 end
 
 function TestData:TestMultiSlotMapping(t)
-    local multiSlots = EquipMap.MULTI_SLOT_EQUIPLOCS
+    local multiSlots = MythicLootMap.MULTI_SLOT_EQUIPLOCS
 
     t:AssertNotNil(multiSlots, "MULTI_SLOT_EQUIPLOCS should exist")
     t:AssertNotNil(multiSlots["INVTYPE_FINGER"], "Finger should be multi-slot")
@@ -53,7 +53,7 @@ function TestData:TestMultiSlotMapping(t)
 end
 
 function TestData:TestBuildItemEntry(t)
-    local entry = EquipMap.Data:BuildItemEntry({
+    local entry = MythicLootMap.Data:BuildItemEntry({
         itemID = 12345,
         name = "Test Helm",
         icon = 12345,
@@ -80,20 +80,20 @@ end
 
 function TestData:TestParseDungeonList(t)
     -- Test with empty map table
-    local dungeons = EquipMap.Data:ParseDungeonList({})
+    local dungeons = MythicLootMap.Data:ParseDungeonList({})
     t:AssertNotNil(dungeons, "ParseDungeonList should return a table")
     t:AssertTableLength(dungeons, 0, "Empty map table -> empty dungeon list")
 end
 
 function TestData:TestItemDataStructure(t)
     -- Test the full data structure initialization
-    t:AssertNotNil(EquipMap.db, "EquipMap.db should exist")
-    t:AssertNotNil(EquipMap.db.dungeons, "EquipMap.db.dungeons should exist")
-    t:AssertNotNil(EquipMap.db.items, "EquipMap.db.items should exist")
+    t:AssertNotNil(MythicLootMap.db, "MythicLootMap.db should exist")
+    t:AssertNotNil(MythicLootMap.db.dungeons, "MythicLootMap.db.dungeons should exist")
+    t:AssertNotNil(MythicLootMap.db.items, "MythicLootMap.db.items should exist")
 end
 
 function TestData:TestArmorTypeMapping(t)
-    local map = EquipMap.ARMOR_TYPES
+    local map = MythicLootMap.ARMOR_TYPES
 
     t:AssertNotNil(map, "ARMOR_TYPES should exist")
     t:AssertNotNil(map["Cloth"], "Cloth armor type")

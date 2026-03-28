@@ -1,15 +1,15 @@
--- EquipMap Utilities and Constants
+-- MythicLootMap Utilities and Constants
 
 local ADDON_NAME, ns = ...
-local EquipMap = ns
+local MythicLootMap = ns
 
 -- Safety fallback: if Locales.lua failed to load, create L with key-as-value fallback
-if not EquipMap.L then
-    EquipMap.L = setmetatable({}, { __index = function(_, k) return k end })
+if not MythicLootMap.L then
+    MythicLootMap.L = setmetatable({}, { __index = function(_, k) return k end })
 end
 
 -- Equipment location -> inventory slot ID (single slot items)
-EquipMap.EQUIPLOC_TO_SLOT = {
+MythicLootMap.EQUIPLOC_TO_SLOT = {
     INVTYPE_HEAD = 1,
     INVTYPE_NECK = 2,
     INVTYPE_SHOULDER = 3,
@@ -31,14 +31,14 @@ EquipMap.EQUIPLOC_TO_SLOT = {
 }
 
 -- Equipment locations that map to multiple slots
-EquipMap.MULTI_SLOT_EQUIPLOCS = {
+MythicLootMap.MULTI_SLOT_EQUIPLOCS = {
     INVTYPE_FINGER = { 11, 12 },
     INVTYPE_TRINKET = { 13, 14 },
     INVTYPE_WEAPON = { 16, 17 },
 }
 
 -- Armor type constants
-EquipMap.ARMOR_TYPES = {
+MythicLootMap.ARMOR_TYPES = {
     Cloth = 1,
     Leather = 2,
     Mail = 3,
@@ -47,7 +47,7 @@ EquipMap.ARMOR_TYPES = {
 
 -- Armor subclassID -> normalized type string (locale-independent)
 -- Enum.ItemArmorSubclass: 1=Cloth, 2=Leather, 3=Mail, 4=Plate
-EquipMap.ARMOR_SUBCLASS_TO_TYPE = {
+MythicLootMap.ARMOR_SUBCLASS_TO_TYPE = {
     [1] = "Cloth",
     [2] = "Leather",
     [3] = "Mail",
@@ -55,8 +55,8 @@ EquipMap.ARMOR_SUBCLASS_TO_TYPE = {
 }
 
 -- Slot ID -> display name (localized)
-local L = EquipMap.L
-EquipMap.SLOT_NAMES = {
+local L = MythicLootMap.L
+MythicLootMap.SLOT_NAMES = {
     [1] = L["Head"],
     [2] = L["Neck"],
     [3] = L["Shoulder"],
@@ -76,7 +76,7 @@ EquipMap.SLOT_NAMES = {
 }
 
 -- Unique slot IDs for filter dropdown (no duplicates)
-EquipMap.FILTER_SLOTS = {
+MythicLootMap.FILTER_SLOTS = {
     { id = 0, name = L["AllSlots"] },
     { id = 1, name = L["Head"] },
     { id = 2, name = L["Neck"] },
@@ -95,10 +95,10 @@ EquipMap.FILTER_SLOTS = {
 }
 
 -- Mythic (M0) difficulty ID for Encounter Journal
-EquipMap.MYTHIC_DIFFICULTY = 23
+MythicLootMap.MYTHIC_DIFFICULTY = 23
 
 -- Color codes
-EquipMap.COLORS = {
+MythicLootMap.COLORS = {
     UPGRADE = "|cFF00FF00",    -- green
     DOWNGRADE = "|cFFFF0000",  -- red
     NEUTRAL = "|cFFFFFFFF",    -- white
@@ -107,15 +107,15 @@ EquipMap.COLORS = {
     RESET = "|r",
 }
 
-function EquipMap:Print(msg)
-    print(EquipMap.COLORS.HEADER .. "EquipMap:|r " .. msg)
+function MythicLootMap:Print(msg)
+    print(MythicLootMap.COLORS.HEADER .. "MythicLootMap:|r " .. msg)
 end
 
-function EquipMap:GetSlotName(slotID)
+function MythicLootMap:GetSlotName(slotID)
     return self.SLOT_NAMES[slotID] or "Unknown"
 end
 
-function EquipMap:ResolveSlotID(equipLoc)
+function MythicLootMap:ResolveSlotID(equipLoc)
     if not equipLoc then return nil end
 
     local multi = self.MULTI_SLOT_EQUIPLOCS[equipLoc]
@@ -126,7 +126,7 @@ function EquipMap:ResolveSlotID(equipLoc)
     return self.EQUIPLOC_TO_SLOT[equipLoc]
 end
 
-function EquipMap:FormatStatNames(item)
+function MythicLootMap:FormatStatNames(item)
     local names = {}
     if item.crit and item.crit > 0 then names[#names + 1] = L["Crit"] end
     if item.haste and item.haste > 0 then names[#names + 1] = L["Haste"] end

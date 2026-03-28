@@ -1,11 +1,11 @@
--- EquipMap Item Comparison
+-- MythicLootMap Item Comparison
 -- Compares loot items against currently equipped gear
 
 local ADDON_NAME, ns = ...
-local EquipMap = ns
+local MythicLootMap = ns
 
 local Compare = {}
-EquipMap.Compare = Compare
+MythicLootMap.Compare = Compare
 
 function Compare:GetPlayerEquipment()
     local equipped = {}
@@ -36,7 +36,7 @@ function Compare:CompareItem(item, equipped)
     end
 
     -- Multi-slot items (rings, trinkets, 1H weapons)
-    local multiSlots = EquipMap.MULTI_SLOT_EQUIPLOCS[equipLoc]
+    local multiSlots = MythicLootMap.MULTI_SLOT_EQUIPLOCS[equipLoc]
     if multiSlots then
         local ilvls = {}
         for _, slotID in ipairs(multiSlots) do
@@ -47,7 +47,7 @@ function Compare:CompareItem(item, equipped)
     end
 
     -- Single-slot items
-    local slotID = EquipMap.EQUIPLOC_TO_SLOT[equipLoc]
+    local slotID = MythicLootMap.EQUIPLOC_TO_SLOT[equipLoc]
     if not slotID then return 0 end
 
     local eq = equipped[slotID]
@@ -104,12 +104,12 @@ function Compare:CalcTwoHandDelta(itemIlvl, mhIlvl, ohIlvl)
 end
 
 function Compare:GetSlotIDsForEquipLoc(equipLoc)
-    local multi = EquipMap.MULTI_SLOT_EQUIPLOCS[equipLoc]
+    local multi = MythicLootMap.MULTI_SLOT_EQUIPLOCS[equipLoc]
     if multi then
         return { multi[1], multi[2] }
     end
 
-    local slotID = EquipMap.EQUIPLOC_TO_SLOT[equipLoc]
+    local slotID = MythicLootMap.EQUIPLOC_TO_SLOT[equipLoc]
     if slotID then
         return { slotID }
     end
@@ -119,10 +119,10 @@ end
 
 function Compare:FormatDelta(delta)
     if not delta or delta == 0 then
-        return EquipMap.COLORS.NEUTRAL .. "0" .. EquipMap.COLORS.RESET
+        return MythicLootMap.COLORS.NEUTRAL .. "0" .. MythicLootMap.COLORS.RESET
     elseif delta > 0 then
-        return EquipMap.COLORS.UPGRADE .. "+" .. delta .. EquipMap.COLORS.RESET
+        return MythicLootMap.COLORS.UPGRADE .. "+" .. delta .. MythicLootMap.COLORS.RESET
     else
-        return EquipMap.COLORS.DOWNGRADE .. delta .. EquipMap.COLORS.RESET
+        return MythicLootMap.COLORS.DOWNGRADE .. delta .. MythicLootMap.COLORS.RESET
     end
 end

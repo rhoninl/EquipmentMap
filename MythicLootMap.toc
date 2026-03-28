@@ -1,9 +1,9 @@
 ## Interface: 120000
-## Title: EquipMap
+## Title: MythicLootMap
 ## Notes: Browse all Mythic+ equipment for the current season
-## Author: EquipMap
+## Author: MythicLootMap
 ## Version: 1.0.0
-## SavedVariables: EquipMapDB
+## SavedVariables: MythicLootMapDB
 
 Locales.lua
 Utils.lua

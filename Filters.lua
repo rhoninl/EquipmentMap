@@ -1,10 +1,10 @@
--- EquipMap Filter Logic
+-- MythicLootMap Filter Logic
 
 local ADDON_NAME, ns = ...
-local EquipMap = ns
+local MythicLootMap = ns
 
 local Filters = {}
-EquipMap.Filters = Filters
+MythicLootMap.Filters = Filters
 
 -- Current active filter state
 Filters.current = {
@@ -113,5 +113,5 @@ function Filters:SetStat2(stat)
 end
 
 function Filters:GetFilteredItems()
-    return self:Apply(EquipMap.db.items, self.current)
+    return self:Apply(MythicLootMap.db.items, self.current)
 end

@@ -1,10 +1,10 @@
--- EquipMap Core
+-- MythicLootMap Core
 -- Main addon initialization, event handling, and slash commands
 
 local ADDON_NAME, ns = ...
 
 -- Global reference for tests and external access
-EquipMap = ns
+MythicLootMap = ns
 
 -- Internal data store
 ns.db = {
@@ -64,9 +64,9 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
         local addonName = ...
         if addonName == ADDON_NAME then
             -- Initialize SavedVariables
-            EquipMapDB = EquipMapDB or {}
-            if EquipMapDB.locale then
-                ns:ApplyLocale(EquipMapDB.locale)
+            MythicLootMapDB = MythicLootMapDB or {}
+            if MythicLootMapDB.locale then
+                ns:ApplyLocale(MythicLootMapDB.locale)
             end
             eventFrame:UnregisterEvent("ADDON_LOADED")
         end
@@ -109,7 +109,7 @@ eventFrame:SetScript("OnEvent", function(self, event, ...)
 end)
 
 -- Minimap button via LibDataBroker pattern (no library needed)
-local minimapButton = CreateFrame("Button", "EquipMapMinimapButton", Minimap)
+local minimapButton = CreateFrame("Button", "MythicLootMapMinimapButton", Minimap)
 minimapButton:SetSize(32, 32)
 minimapButton:SetFrameStrata("MEDIUM")
 minimapButton:SetFrameLevel(8)
@@ -138,7 +138,7 @@ end)
 
 minimapButton:SetScript("OnEnter", function(self)
     GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-    GameTooltip:AddLine("EquipMap")
+    GameTooltip:AddLine("MythicLootMap")
     GameTooltip:AddLine(ns.L["CmdToggle"], 1, 1, 1, true)
     GameTooltip:Show()
 end)
@@ -169,11 +169,11 @@ minimapButton:SetScript("OnDragStop", function(self)
     self:SetScript("OnUpdate", nil)
 end)
 
--- Slash command
-SLASH_EQUIPMAP1 = "/equipmap"
-SLASH_EQUIPMAP2 = "/em"
+-- Slash commands
+SLASH_MYTHICLOOTMAP1 = "/mlm"
+SLASH_MYTHICLOOTMAP2 = "/equipmap"
 
-SlashCmdList["EQUIPMAP"] = function(msg)
+SlashCmdList["MYTHICLOOTMAP"] = function(msg)
     msg = strtrim(msg):lower()
 
     if msg == "test" then

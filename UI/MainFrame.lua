@@ -1,11 +1,11 @@
--- EquipMap Main UI Frame
+-- MythicLootMap Main UI Frame
 -- Uses modern WoW 12.0 APIs: ScrollBox, DropdownButton, MenuUtil
 
 local ADDON_NAME, ns = ...
-local EquipMap = ns
+local MythicLootMap = ns
 
 local MainFrame = {}
-EquipMap.MainFrame = MainFrame
+MythicLootMap.MainFrame = MainFrame
 
 local FRAME_WIDTH = 960
 local FRAME_HEIGHT = 560
@@ -21,7 +21,7 @@ local statusText = nil
 function MainFrame:Create()
     if frame then return frame end
 
-    frame = CreateFrame("Frame", "EquipMapFrame", UIParent, "BackdropTemplate")
+    frame = CreateFrame("Frame", "MythicLootMapFrame", UIParent, "BackdropTemplate")
     frame:SetSize(FRAME_WIDTH, FRAME_HEIGHT)
     frame:SetPoint("CENTER")
     frame:SetMovable(true)
@@ -33,7 +33,7 @@ function MainFrame:Create()
     frame:SetClampedToScreen(true)
 
     -- ESC to close
-    tinsert(UISpecialFrames, "EquipMapFrame")
+    tinsert(UISpecialFrames, "MythicLootMapFrame")
 
     frame:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
@@ -45,7 +45,7 @@ function MainFrame:Create()
     -- Title
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     title:SetPoint("TOP", 0, -16)
-    title:SetText(EquipMap.L["Title"])
+    title:SetText(MythicLootMap.L["Title"])
 
     -- Close button
     local closeBtn = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
@@ -57,8 +57,8 @@ function MainFrame:Create()
     reloadBtn:SetPoint("TOPRIGHT", closeBtn, "TOPLEFT", -4, -4)
     reloadBtn:SetText("Reload")
     reloadBtn:SetScript("OnClick", function()
-        EquipMap.DoReload()
-        EquipMap:Print(EquipMap.L["DataReloaded"])
+        MythicLootMap.DoReload()
+        MythicLootMap:Print(MythicLootMap.L["DataReloaded"])
     end)
 
     -- Settings button
@@ -96,19 +96,19 @@ function MainFrame:CreateFilterBar(parent)
     -- Slot dropdown
     local slotDropdown = CreateFrame("DropdownButton", nil, bar, "WowStyle1DropdownTemplate")
     slotDropdown:SetPoint("LEFT", 4, 0)
-    local L = EquipMap.L
+    local L = MythicLootMap.L
     slotDropdown:SetDefaultText(L["AllSlots"])
     self.slotDropdown = slotDropdown
 
     local selectedSlot = 0
     slotDropdown:SetupMenu(function(dropdown, rootDescription)
-        for _, slot in ipairs(EquipMap.FILTER_SLOTS) do
+        for _, slot in ipairs(MythicLootMap.FILTER_SLOTS) do
             rootDescription:CreateRadio(
                 slot.name,
                 function() return selectedSlot == slot.id end,
                 function()
                     selectedSlot = slot.id
-                    EquipMap.Filters:SetSlot(slot.id)
+                    MythicLootMap.Filters:SetSlot(slot.id)
                     MainFrame:Refresh()
                 end
             )
@@ -135,7 +135,7 @@ function MainFrame:CreateFilterBar(parent)
                 function() return selectedArmor == opt.key end,
                 function()
                     selectedArmor = opt.key
-                    EquipMap.Filters:SetArmorType(opt.key)
+                    MythicLootMap.Filters:SetArmorType(opt.key)
                     MainFrame:Refresh()
                 end
             )
@@ -155,18 +155,18 @@ function MainFrame:CreateFilterBar(parent)
             function() return selectedDungeon == 0 end,
             function()
                 selectedDungeon = 0
-                EquipMap.Filters:SetDungeon(nil)
+                MythicLootMap.Filters:SetDungeon(nil)
                 MainFrame:Refresh()
             end
         )
-        local dungeons = EquipMap.Data:GetDungeonList()
+        local dungeons = MythicLootMap.Data:GetDungeonList()
         for _, d in ipairs(dungeons) do
             rootDescription:CreateRadio(
                 d.name,
                 function() return selectedDungeon == d.instanceID end,
                 function()
                     selectedDungeon = d.instanceID
-                    EquipMap.Filters:SetDungeon(d.instanceID)
+                    MythicLootMap.Filters:SetDungeon(d.instanceID)
                     MainFrame:Refresh()
                 end
             )
@@ -193,7 +193,7 @@ function MainFrame:CreateFilterBar(parent)
                 function() return selectedStat1 == opt.key end,
                 function()
                     selectedStat1 = opt.key
-                    EquipMap.Filters:SetStat1(opt.key)
+                    MythicLootMap.Filters:SetStat1(opt.key)
                     MainFrame:Refresh()
                 end
             )
@@ -211,7 +211,7 @@ function MainFrame:CreateFilterBar(parent)
                 function() return selectedStat2 == opt.key end,
                 function()
                     selectedStat2 = opt.key
-                    EquipMap.Filters:SetStat2(opt.key)
+                    MythicLootMap.Filters:SetStat2(opt.key)
                     MainFrame:Refresh()
                 end
             )
@@ -220,7 +220,7 @@ function MainFrame:CreateFilterBar(parent)
 
     -- Spec filter checkbox
     local specCheck = self:CreateCheckbox(bar, L["MySpec"], function(checked)
-        EquipMap.Filters:SetSpecFilter(checked)
+        MythicLootMap.Filters:SetSpecFilter(checked)
         if checked then
             local _, _, classID = UnitClass("player")
             local specIndex = GetSpecialization()
@@ -231,8 +231,8 @@ function MainFrame:CreateFilterBar(parent)
         else
             EJ_ResetLootFilter()
         end
-        EquipMap.Data:LoadDungeonData()
-        EquipMap.Data:UpdateComparisons()
+        MythicLootMap.Data:LoadDungeonData()
+        MythicLootMap.Data:UpdateComparisons()
         MainFrame:Refresh()
     end)
     specCheck:SetPoint("LEFT", stat2Dropdown, "RIGHT", 10, 0)
@@ -262,7 +262,7 @@ function MainFrame:CreateHeaders(parent)
     headerRow:SetPoint("TOPRIGHT", -28, -(42 + FILTER_BAR_HEIGHT + 4))
     headerRow:SetHeight(HEADER_HEIGHT)
 
-    local L = EquipMap.L
+    local L = MythicLootMap.L
     local headers = {
         { text = "", width = 30 },
         { text = L["Item"], width = 200 },
@@ -277,7 +277,7 @@ function MainFrame:CreateHeaders(parent)
         local text = headerRow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
         text:SetPoint("LEFT", xOffset, 0)
         text:SetWidth(h.width)
-        text:SetText(EquipMap.COLORS.HEADER .. h.text .. EquipMap.COLORS.RESET)
+        text:SetText(MythicLootMap.COLORS.HEADER .. h.text .. MythicLootMap.COLORS.RESET)
         text:SetJustifyH("LEFT")
         xOffset = xOffset + h.width
     end
@@ -382,25 +382,12 @@ function MainFrame:SetupRowWidgets(row)
     row:SetScript("OnMouseUp", function(self, button)
         if IsModifiedClick("CHATLINK") and self.itemLink then
             ChatEdit_InsertLink(self.itemLink)
-        elseif button == "LeftButton" and self.instanceID and self.encounterID then
-            -- Open Adventure Guide to this item's dungeon/encounter
-            if not EncounterJournal or not EncounterJournal:IsShown() then
-                ToggleEncounterJournal()
-            end
-            EJ_SelectInstance(self.instanceID)
-            EJ_SelectEncounter(self.encounterID)
-            -- Switch to loot tab (tab index 2)
-            if EncounterJournal and EncounterJournal.encounter and EncounterJournal.encounter.info then
-                EncounterJournal.encounter.info.lootTab:Click()
-            end
         end
     end)
 end
 
 function MainFrame:SetRowData(row, item)
     row.itemLink = item.itemLink
-    row.instanceID = item.instanceID
-    row.encounterID = item.encounterID
 
     if item.icon then
         row.icon:SetTexture(item.icon)
@@ -410,8 +397,8 @@ function MainFrame:SetRowData(row, item)
     end
 
     row.nameText:SetText(item.itemLink or item.name or "Loading...")
-    row.slotText:SetText(EquipMap:GetSlotName(item.slotID))
-    row.statsText:SetText(EquipMap:FormatStatNames(item))
+    row.slotText:SetText(MythicLootMap:GetSlotName(item.slotID))
+    row.statsText:SetText(MythicLootMap:FormatStatNames(item))
     row.dungeonText:SetText(item.dungeonName or "")
     row.bossText:SetText(item.encounterName or "")
 end
@@ -426,7 +413,7 @@ function MainFrame:InitDungeonDropdown() end
 function MainFrame:Refresh()
     if not frame or not frame:IsShown() then return end
 
-    local filteredItems = EquipMap.Filters:GetFilteredItems()
+    local filteredItems = MythicLootMap.Filters:GetFilteredItems()
 
     -- Save scroll position before replacing data
     local scrollPct = scrollBox:GetScrollPercentage() or 0
@@ -439,8 +426,8 @@ function MainFrame:Refresh()
         scrollBox:SetScrollPercentage(scrollPct)
     end
 
-    local totalItems = #EquipMap.db.items
-    statusText:SetText(string.format(EquipMap.L["Showing"], #filteredItems, totalItems))
+    local totalItems = #MythicLootMap.db.items
+    statusText:SetText(string.format(MythicLootMap.L["Showing"], #filteredItems, totalItems))
 end
 
 function MainFrame:Toggle()
@@ -516,7 +503,7 @@ function MainFrame:CreateSettings()
     local langDropdown = CreateFrame("DropdownButton", nil, settingsFrame, "WowStyle1DropdownTemplate")
     langDropdown:SetPoint("LEFT", langLabel, "RIGHT", 8, 0)
 
-    local currentLang = (EquipMapDB and EquipMapDB.locale) or GetLocale()
+    local currentLang = (MythicLootMapDB and MythicLootMapDB.locale) or GetLocale()
 
     langDropdown:SetupMenu(function(dropdown, rootDescription)
         local langOptions = {
@@ -530,10 +517,10 @@ function MainFrame:CreateSettings()
                 function() return currentLang == opt.code end,
                 function()
                     currentLang = opt.code
-                    EquipMapDB = EquipMapDB or {}
-                    EquipMapDB.locale = opt.code
-                    EquipMap:ApplyLocale(opt.code)
-                    EquipMap:Print(string.format(EquipMap.L["LangSet"], opt.code))
+                    MythicLootMapDB = MythicLootMapDB or {}
+                    MythicLootMapDB.locale = opt.code
+                    MythicLootMap:ApplyLocale(opt.code)
+                    MythicLootMap:Print(string.format(MythicLootMap.L["LangSet"], opt.code))
                 end
             )
         end

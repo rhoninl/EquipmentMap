@@ -1,22 +1,22 @@
--- EquipMap Data Loading
+-- MythicLootMap Data Loading
 -- Loads dungeon and loot data from WoW Encounter Journal API
 
 local ADDON_NAME, ns = ...
-local EquipMap = ns
+local MythicLootMap = ns
 
 local Data = {}
-EquipMap.Data = Data
+MythicLootMap.Data = Data
 
 -- Pending item data requests for async loading
 local pendingItems = {}
 
 function Data:LoadDungeonData()
-    EquipMap.db.dungeons = {}
-    EquipMap.db.items = {}
+    MythicLootMap.db.dungeons = {}
+    MythicLootMap.db.items = {}
 
     local challengeModeIDs = C_ChallengeMode.GetMapTable()
     if not challengeModeIDs or #challengeModeIDs == 0 then
-        EquipMap:Print(EquipMap.L["NoDungeons"])
+        MythicLootMap:Print(MythicLootMap.L["NoDungeons"])
         return
     end
 
@@ -26,7 +26,7 @@ function Data:LoadDungeonData()
     EJ_ResetLootFilter()
 
     -- Apply class/spec filter if enabled
-    if EquipMap.Filters.current.specFilter then
+    if MythicLootMap.Filters.current.specFilter then
         local _, _, classID = UnitClass("player")
         local specIndex = GetSpecialization()
         if specIndex then
@@ -39,14 +39,14 @@ function Data:LoadDungeonData()
     local ejLookupByName = self:BuildEJNameLookup()
 
     -- Set Mythic (M0) difficulty for loot queries
-    EJ_SetDifficulty(EquipMap.MYTHIC_DIFFICULTY)
+    EJ_SetDifficulty(MythicLootMap.MYTHIC_DIFFICULTY)
 
     for _, cmID in ipairs(challengeModeIDs) do
         local name, _, _, _, _, uiMapID = C_ChallengeMode.GetMapUIInfo(cmID)
         if name then
             local ejInstanceID = self:ResolveEJInstanceID(name, uiMapID, ejLookupByName)
             if ejInstanceID and ejInstanceID > 0 then
-                EquipMap.db.dungeons[ejInstanceID] = {
+                MythicLootMap.db.dungeons[ejInstanceID] = {
                     name = name,
                     challengeModeID = cmID,
                     uiMapID = uiMapID,
@@ -59,7 +59,7 @@ function Data:LoadDungeonData()
     end
 
     self:RequestMissingItemData()
-    EquipMap:Print(string.format(EquipMap.L["Loaded"], #EquipMap.db.items, self:CountDungeons()))
+    MythicLootMap:Print(string.format(MythicLootMap.L["Loaded"], #MythicLootMap.db.items, self:CountDungeons()))
 end
 
 function Data:ResolveEJInstanceID(dungeonName, uiMapID, ejLookupByName)
@@ -109,7 +109,7 @@ function Data:LoadInstanceLoot(instanceID, dungeonName)
     EJ_SelectInstance(instanceID)
 
     local numLoot = EJ_GetNumLoot()
-    local dungeon = EquipMap.db.dungeons[instanceID]
+    local dungeon = MythicLootMap.db.dungeons[instanceID]
 
     for lootIndex = 1, numLoot do
         local itemInfo = C_EncounterJournal.GetLootInfoByIndex(lootIndex)
@@ -147,7 +147,7 @@ function Data:LoadInstanceLoot(instanceID, dungeonName)
                 if encounterID and dungeon.encounters[encounterID] then
                     table.insert(dungeon.encounters[encounterID].items, entry)
                 end
-                table.insert(EquipMap.db.items, entry)
+                table.insert(MythicLootMap.db.items, entry)
             end
 
             if not itemInfo.name or itemInfo.name == "" then
@@ -158,7 +158,7 @@ function Data:LoadInstanceLoot(instanceID, dungeonName)
 end
 
 function Data:BuildItemEntry(info)
-    local slotID = EquipMap:ResolveSlotID(info.slot)
+    local slotID = MythicLootMap:ResolveSlotID(info.slot)
 
     local entry = {
         itemID = info.itemID,
@@ -200,7 +200,7 @@ function Data:EnrichItemEntry(entry)
         entry.icon = entry.icon or itemTexture
         if itemEquipLoc and itemEquipLoc ~= "" then
             entry.slot = itemEquipLoc
-            entry.slotID = EquipMap:ResolveSlotID(itemEquipLoc)
+            entry.slotID = MythicLootMap:ResolveSlotID(itemEquipLoc)
         end
         if not entry.itemLink and itemLink then
             entry.itemLink = itemLink
@@ -221,7 +221,7 @@ function Data:EnrichItemEntry(entry)
         -- Detect armor type from item class/subclass (locale-independent)
         local _, _, _, _, _, classID, subclassID = GetItemInfoInstant(entry.itemID)
         if classID == Enum.ItemClass.Armor then
-            entry.armorType = EquipMap.ARMOR_SUBCLASS_TO_TYPE[subclassID]
+            entry.armorType = MythicLootMap.ARMOR_SUBCLASS_TO_TYPE[subclassID]
         end
     else
         pendingItems[entry.itemID] = entry
@@ -249,10 +249,10 @@ function Data:OnItemDataLoaded(itemID, success)
 end
 
 function Data:UpdateComparisons()
-    local equipped = EquipMap.Compare:GetPlayerEquipment()
+    local equipped = MythicLootMap.Compare:GetPlayerEquipment()
 
-    for _, item in ipairs(EquipMap.db.items) do
-        item.ilvlDelta = EquipMap.Compare:CompareItem(item, equipped)
+    for _, item in ipairs(MythicLootMap.db.items) do
+        item.ilvlDelta = MythicLootMap.Compare:CompareItem(item, equipped)
     end
 end
 
@@ -271,7 +271,7 @@ end
 
 function Data:CountDungeons()
     local count = 0
-    for _ in pairs(EquipMap.db.dungeons) do
+    for _ in pairs(MythicLootMap.db.dungeons) do
         count = count + 1
     end
     return count
@@ -279,7 +279,7 @@ end
 
 function Data:GetDungeonList()
     local list = {}
-    for instanceID, dungeon in pairs(EquipMap.db.dungeons) do
+    for instanceID, dungeon in pairs(MythicLootMap.db.dungeons) do
         table.insert(list, { instanceID = instanceID, name = dungeon.name })
     end
     table.sort(list, function(a, b) return a.name < b.name end)

@@ -1,9 +1,9 @@
--- EquipMap Filter Tests
+-- MythicLootMap Filter Tests
 
-local EquipMap = EquipMap
+local MythicLootMap = MythicLootMap
 
 local TestFilters = {}
-EquipMap.TestFilters = TestFilters
+MythicLootMap.TestFilters = TestFilters
 
 -- Helper: create mock item entries for testing
 local function MockItem(overrides)
@@ -49,13 +49,13 @@ function TestFilters:TestSlotFilter(t)
         MockItem({ slotID = 1, slot = "INVTYPE_HEAD" }),
     }
 
-    local filtered = EquipMap.Filters:Apply(items, { slotID = 1 })
+    local filtered = MythicLootMap.Filters:Apply(items, { slotID = 1 })
     t:AssertEqual(2, #filtered, "Slot filter: 2 head items")
 
-    filtered = EquipMap.Filters:Apply(items, { slotID = 5 })
+    filtered = MythicLootMap.Filters:Apply(items, { slotID = 5 })
     t:AssertEqual(1, #filtered, "Slot filter: 1 chest item")
 
-    filtered = EquipMap.Filters:Apply(items, { slotID = 10 })
+    filtered = MythicLootMap.Filters:Apply(items, { slotID = 10 })
     t:AssertEqual(0, #filtered, "Slot filter: 0 hand items")
 end
 
@@ -67,10 +67,10 @@ function TestFilters:TestDungeonFilter(t)
         MockItem({ instanceID = 202, dungeonName = "Cleft" }),
     }
 
-    local filtered = EquipMap.Filters:Apply(items, { instanceID = 200 })
+    local filtered = MythicLootMap.Filters:Apply(items, { instanceID = 200 })
     t:AssertEqual(2, #filtered, "Dungeon filter: 2 Rookery items")
 
-    filtered = EquipMap.Filters:Apply(items, { instanceID = 999 })
+    filtered = MythicLootMap.Filters:Apply(items, { instanceID = 999 })
     t:AssertEqual(0, #filtered, "Dungeon filter: 0 for non-existent dungeon")
 end
 
@@ -82,7 +82,7 @@ function TestFilters:TestUpgradesOnlyFilter(t)
         MockItem({ ilvlDelta = 3 }),
     }
 
-    local filtered = EquipMap.Filters:Apply(items, { upgradesOnly = true })
+    local filtered = MythicLootMap.Filters:Apply(items, { upgradesOnly = true })
     t:AssertEqual(2, #filtered, "Upgrades only: 2 items with positive delta")
 end
 
@@ -94,7 +94,7 @@ function TestFilters:TestNotCollectedFilter(t)
         MockItem({ owned = true }),
     }
 
-    local filtered = EquipMap.Filters:Apply(items, { notCollected = true })
+    local filtered = MythicLootMap.Filters:Apply(items, { notCollected = true })
     t:AssertEqual(2, #filtered, "Not collected: 2 unowned items")
 end
 
@@ -108,7 +108,7 @@ function TestFilters:TestCombinedFilters(t)
     }
 
     -- Slot=1 + Dungeon=200 + Upgrades + Not collected
-    local filtered = EquipMap.Filters:Apply(items, {
+    local filtered = MythicLootMap.Filters:Apply(items, {
         slotID = 1,
         instanceID = 200,
         upgradesOnly = true,
@@ -124,11 +124,11 @@ function TestFilters:TestNoFilters(t)
         MockItem({}),
     }
 
-    local filtered = EquipMap.Filters:Apply(items, {})
+    local filtered = MythicLootMap.Filters:Apply(items, {})
     t:AssertEqual(3, #filtered, "No filters: all items returned")
 end
 
 function TestFilters:TestEmptyItemList(t)
-    local filtered = EquipMap.Filters:Apply({}, { slotID = 1 })
+    local filtered = MythicLootMap.Filters:Apply({}, { slotID = 1 })
     t:AssertEqual(0, #filtered, "Empty list: 0 items")
 end
