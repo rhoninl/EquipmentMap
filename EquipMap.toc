@@ -6,6 +6,8 @@
 ## SavedVariables: EquipMapDB
 
 Locales.lua
+Locales_zhCN.lua
+Locales_zhTW.lua
 Utils.lua
 Data.lua
 Compare.lua
